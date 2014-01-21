@@ -11,13 +11,19 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.InputDevice;
+import android.view.InputEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 public class MainActivity extends Activity {
 	// instance variables
 	RobotApplication mApp;
-	// bluetooth-related variables
+    private Joystick joystickHandler_;
+
+    // bluetooth-related variables
 	private BluetoothDevice mDevice;
 	private ArrayList<BluetoothDevice> mDevices;
 	// activity codes
@@ -28,6 +34,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
         mApp = (RobotApplication)this.getApplication();
+        joystickHandler_ = new Joystick();
 	}
 
 	private static final int CHOOSE_ID = Menu.FIRST;
@@ -118,5 +125,40 @@ public class MainActivity extends Activity {
 	        }
         }
     }
+	
+    /**
+    * Until we get a joystick event, it is not certain what InputDevice corresponds to the joystick
+    * Though there are methods for introspection, I was in a hurry and this does the job.
+    */
+    private void initializeJoystickHandlerIfPossibleAndNecessary(InputEvent event)
+    /*************************************************************************/
+    {
+        if ((!joystickHandler_.isInitialized()) && (event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0)
+            joystickHandler_.initializeDevice(event.getDevice());
+    }
+    
+    /**
+    * This is an android event handler for generic motion events. This is triggered
+    * when any of the axes controls (vs simple buttons) on the joystick are used
+    * where each axis has a value between -1.0 and 1.0.
+    */
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event)
+    /*************************************************************************/
+    {
+        Log.d("MainActivity", "MainActivity: dispatchGenericMotionEvent");
 
+        initializeJoystickHandlerIfPossibleAndNecessary(event);
+
+        boolean isJoystickEvent = ((event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0);
+        boolean isActionMoveEvent = event.getAction() == MotionEvent.ACTION_MOVE;
+
+        if (!isJoystickEvent || !isActionMoveEvent || !joystickHandler_.isInitialized())
+            return super.dispatchGenericMotionEvent(event);
+        
+        if (joystickHandler_.onJoystickMotion(event))
+            return true;
+
+        return super.dispatchGenericMotionEvent(event);
+    }
 }
