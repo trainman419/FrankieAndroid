@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
         mApp = (RobotApplication)this.getApplication();
-        joystickHandler_ = new Joystick();
+        joystickHandler_ = new Joystick(mApp);
 	}
 
 	private static final int CHOOSE_ID = Menu.FIRST;

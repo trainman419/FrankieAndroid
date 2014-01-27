@@ -72,12 +72,6 @@ public class HardwareManager extends Thread {
 		mStop = false;
 		mApp = app;
 		
-		mShutdown = false;
-		mUpdateSent = false;
-		mAutonomous = false;
-		mSpeed = 0;
-		mDirection = 120;
-		
 		mPackets = new LinkedList<Packet>();
 	}
 	
@@ -112,8 +106,7 @@ public class HardwareManager extends Thread {
 			
 			// main thread loop
 			while( mStop != true ) {
-				while( in.available() < 1 
-						&& mUpdateSent 
+				if( in.available() < 1 
 						&& !mStop ) sleep(10); // this limits how quickly we can send/receive updates from the hardware
 				
 				if( in.available() > 0 ) {
@@ -134,52 +127,17 @@ public class HardwareManager extends Thread {
 						}
 					}
 				}
-				
-				if( !mUpdateSent ) {
-					synchronized(mUpdateSent) {
-						mUpdateSent = true;
-						if( mShutdown ) {
-							byte data[] = new byte[10];
-							for( i=0; i<9; i++) data[i] = 'Z';
-							data[9] = '\r';
-							out.write(data);
-						} else {
-							Packet cmd = new Packet('C');
-							
-							if( mAutonomous ) {
-								cmd.append((byte)2); // autonomous mode
-								cmd.append((byte)0); // zero speed
-								cmd.append((byte)0); // zero steer angle
-							} else {
-								cmd.append((byte)1); // remote mode
-								cmd.append(mSpeed);
-								cmd.append(mDirection);
-							}
-							cmd.finish();
-							out.write(cmd.toByteArray());
-						}
-					}
-					//message("Update sent");
-				}
-				
+								
 				// send any packets requested by the application
 				synchronized(mPackets) {
 					for( Packet p : mPackets ) {
-						message("Transmitting packet");
+						message("Transmitting packet: " + p.toString());
 						out.write(p.toByteArray());
 					}
 					mPackets.clear();
 				}
 			}
-			
-			// hardcoded stop on thread end
-			// TODO: update this for packets
-			out.write('C');
-			out.write(0);
-			out.write(0);
-			out.write(0);
-			out.write('\r');
-			
+						
 			// don't forget to close our socket when we're done.
 			socket.close();
 			message("HardwareManager terminated");
@@ -197,75 +155,13 @@ public class HardwareManager extends Thread {
 	public void sendStop() {
 		mStop = true;
 	}
-	
-
-	/**
-	 * Set the robot speed
-	 * @param s target speed
-	 */
-	public void setSpeed(byte s) {
-		synchronized (mUpdateSent) {
-			mUpdateSent = false;
-			mSpeed = s;
-		}
-	}
-	
-	public byte getSpeed() {
-		return mSpeed;
-	}
-	
-	/**
-	 * Set the position of the robot's steering mechanism; positive is right
-	 * @param dir target steering position in arbitrary units
-	 */
-	public void setDirection(byte dir) {
-		synchronized (mUpdateSent) {
-			mUpdateSent = false;
-			mDirection = dir;
-		}
-	}
-	
-	public byte getDirection() {
-		return mDirection;
-	}
-		
-	public void fullStop() {
-		synchronized (mUpdateSent) {
-			mUpdateSent = false;
-			mSpeed = 0;
-			mDirection = 0;
-		}
-	}
-	
-	/**
-	 * Send a shutdown command to the robot
-	 */
-	public void setShutdown() {
-		synchronized(mUpdateSent) {
-			mUpdateSent = false;
-			mShutdown = true;
-		}
-	}
-	
-
-	/**
-	 * set whether the robot is in autonomous mode
-	 * @param a: true to put robot into autonomous mode
-	 */
-	public void setAutonomous(boolean a) {
-		if( a != mAutonomous ) {
-			synchronized(mUpdateSent) {
-				mUpdateSent = false;
-				mAutonomous = a;
-			}		
-		}
-	}
-		
+			
 	/**
 	 * send a packet to the robot
 	 */
 	public void sendPacket(Packet p) {
 		synchronized(mPackets) {
+			message("Put packet in queue");
 			mPackets.add(p);
 		}
 	}

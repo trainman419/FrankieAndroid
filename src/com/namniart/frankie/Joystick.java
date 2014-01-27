@@ -14,14 +14,16 @@ public class Joystick {
     private float[] axesValues_;
     private SparseIntArray keys_;
     private int x_axis, y_axis;
+    private RobotApplication mApp;
     
    /**
     * The constructor for this class
     */
-    public Joystick()
+    public Joystick(RobotApplication app)
     {
         isInitialized_ = false;
         messageSequenceNumber_ = 0;
+        mApp = app;
         
         // Right stick: y=5, x=4
         // Left  stick: y=1, x=0
@@ -108,8 +110,18 @@ public class Joystick {
         }
 
         // TODO: send/publish joystick event
-        Log.d("JoystickNode", "Joystick update. x: " + axesValues_[x_axis] + ", y: " + axesValues_[y_axis]);
+        float x = axesValues_[x_axis];
+        float y = -axesValues_[y_axis]; // invert y axis so that + is up/forward
+        Log.d("JoystickNode", "Joystick update. x: " + x + ", y: " + y);
 
+        Packet control = new Packet('V');
+        byte speed = (byte) Math.round(y * 30);
+        byte steering = (byte) Math.round(x * 30);
+        Log.d("JoystickNode", "Speed: " + speed + ", Steering: " + steering);
+        control.append(speed);
+        control.append(steering);
+        control.finish();
+        mApp.getHwMan().sendPacket(control);
         return true;
     }
 }

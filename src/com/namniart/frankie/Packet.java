@@ -88,4 +88,26 @@ public class Packet {
 	public int sz() {
 		return data.size();
 	}
+	
+	public String toString() {
+		StringBuilder s = new StringBuilder("Packet(");
+		if( data.size() > 0 ) {
+			s.append((char)data.get(0).byteValue());
+		} else {
+			s.append("no type");
+		}
+		s.append(")");
+		if( data.size() > 1 ) {
+			s.append(" <");
+			s.append(data.get(1));
+			if( data.size() > 2 ) {
+				for( int i=2; i<data.size(); i++ ) {
+					s.append(", ");
+					s.append(data.get(i));
+				}
+			}
+			s.append(">");
+		}
+		return s.toString();
+	}
 }
