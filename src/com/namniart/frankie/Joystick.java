@@ -115,8 +115,8 @@ public class Joystick {
         Log.d("JoystickNode", "Joystick update. x: " + x + ", y: " + y);
 
         Packet control = new Packet('V');
-        byte speed = (byte) Math.round(y * 30);
-        byte steering = (byte) Math.round(x * 30);
+        byte speed = (byte) Math.round(y>0?y*10:y*30);
+        byte steering = (byte) Math.round(x * 25);
         Log.d("JoystickNode", "Speed: " + speed + ", Steering: " + steering);
         control.append(speed);
         control.append(steering);
