@@ -30,8 +30,8 @@ public class Joystick {
         // Left trigger: 2,3 (both the same)
         // Right trigger: 6,7 (both the same)
         // Dpad: y=8, x=9
-        x_axis = 4;
-        y_axis = 1;
+        x_axis = 0;
+        y_axis = 5;
     }
 
     /**
@@ -115,7 +115,7 @@ public class Joystick {
         Log.d("JoystickNode", "Joystick update. x: " + x + ", y: " + y);
 
         Packet control = new Packet('V');
-        byte speed = (byte) Math.round(y>0?y*10:y*30);
+        byte speed = (byte) Math.round(y>0?y*15:y*45);
         byte steering = (byte) Math.round(x * 25);
         Log.d("JoystickNode", "Speed: " + speed + ", Steering: " + steering);
         control.append(speed);
