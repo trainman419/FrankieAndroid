@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 
@@ -56,9 +57,9 @@ public class RobotApplication extends Application {
 	 * Start a new HardwareManager with a new device. Stops the current HardwareManager if one is running.
 	 * @param device The new bluetooth device to use
 	 */
-	public void startHwMan(BluetoothDevice device) {
+	public void startHwMan(BluetoothDevice device, Activity parent) {
 		mHwMan.sendStop();
-		mHwMan = new HardwareManager(device, this);
+		mHwMan = new HardwareManager(device, this, parent);
 		mHwMan.start();
 	}
 	

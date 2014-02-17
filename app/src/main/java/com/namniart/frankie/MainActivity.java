@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
 		        // display list of adapters; allow the user to pick one
 		        if( devices != null && devices.isEmpty() ) {
 		        	dialog.dismiss();
-		        	dialog = builder.setMessage("No devices found; please pair a device with your phone.").create();
+		        	dialog = builder.setMessage("No devices found; please pair a device.").create();
 		        	dialog.show();
 		        } else {		        	
 		        	ArrayList<BluetoothDevice> list = new ArrayList<BluetoothDevice>();
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
 	        	if( mDevices != null) {
 	        		mDevice = mDevices.get(intent.getIntExtra("index",0));
 	        		mDevices = null; // free up our device list
-	    			mApp.startHwMan(mDevice);
+	    			mApp.startHwMan(mDevice, this);
 	        	}
 	        	break;
 	        }

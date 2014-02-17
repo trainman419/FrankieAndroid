@@ -1,14 +1,16 @@
 package com.namniart.frankie;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 /**
  * Interface thread to the robot hardware. Runs as a thread, receives periodic updates from the robot
@@ -50,6 +52,7 @@ public class HardwareManager extends Thread {
 	private BluetoothDevice mDevice;
 	private boolean mStop;
 	private RobotApplication mApp;
+    private Activity mParentActivity;
 	
 	
 	// robot output variables
@@ -67,10 +70,11 @@ public class HardwareManager extends Thread {
 	 * to master.
 	 * @param d Bluetooth device to talk to
 	 */
-	public HardwareManager(BluetoothDevice d, RobotApplication app) {
+	public HardwareManager(BluetoothDevice d, RobotApplication app, Activity parent) {
 		mDevice = d;
 		mStop = false;
 		mApp = app;
+        mParentActivity = parent;
 		
 		mPackets = new LinkedList<Packet>();
 	}
@@ -78,6 +82,17 @@ public class HardwareManager extends Thread {
 	private void message(String msg) {
 		Log.d("HardwareManager", msg);
 	}
+
+    private void toast(final String msg) {
+        if(null != mParentActivity) {
+            mParentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mApp.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 	
 	/**
 	 * Run the hardware manager. Don't call this directly; invoke the superclass start() so that it runs
@@ -97,7 +112,8 @@ public class HardwareManager extends Thread {
 			message("Connecting socket to " + dev.getName() + "...");
 			socket.connect();
 			message("Connected to " + dev.getName());
-			
+            toast("Connected to " + dev.getName());
+
 			// set up input and output streams
 			OutputStream out = socket.getOutputStream();
 			InputStream in = socket.getInputStream();
@@ -141,11 +157,13 @@ public class HardwareManager extends Thread {
 			// don't forget to close our socket when we're done.
 			socket.close();
 			message("HardwareManager terminated");
-			
+            toast("Bluetooth connection closed");
+
 		} catch(Exception e) {
 			// tell the master why we died
 			Log.e("HardwareManager", "Exception: " + e.toString(), e);
-		}
+            toast("ERROR. Bluetooth disconnected: " + e.toString());
+        }
 		return; // I like seeing where the end of my function is
 	}
 	

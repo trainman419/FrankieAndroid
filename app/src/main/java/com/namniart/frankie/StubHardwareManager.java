@@ -13,7 +13,7 @@ package com.namniart.frankie;
 public class StubHardwareManager extends HardwareManager {
 	
 	public StubHardwareManager(RobotApplication app) {
-		super(null, app);
+		super(null, app, null);
 	}
 	
 	@Override
