@@ -17,6 +17,7 @@ import android.view.InputEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	// instance variables
@@ -35,6 +36,25 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
         mApp = (RobotApplication)this.getApplication();
         joystickHandler_ = new Joystick(mApp);
+
+        mApp.addHandler('C', new PacketHandler(){
+        //Convert degrees to headings - compass
+            @Override
+            public void handlePacket(Packet p) {
+                int compass = p.reads32(); // degrees x10
+                String heading = "";
+                if(compass < 22.5 || compass > 337.5) heading = "N";
+                else if(compass < 67.5) heading = "NE";
+                else if(compass < 112.5) heading = "E";
+                else if(compass < 157.5) heading = "SE";
+                else if(compass < 202.5) heading="S";
+                else if(compass < 247.5) heading="SW";
+                else if(compass < 292.5) heading="W";
+                else if(compass < 337.5) heading="NW";
+                TextView output = (TextView)findViewById(R.id.textView);
+                output.setText(heading);
+            }
+        });
 	}
 
 	private static final int CHOOSE_ID = Menu.FIRST;
@@ -46,7 +66,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
+		//getMenuInflater().inflate(R.menu.activity_main, menu);
     	menu.add(0, CHOOSE_ID, 0, R.string.bluetooth_picker);
     	menu.add(0, STOP_ID, 0, R.string.bluetooth_stop);
     	return true;

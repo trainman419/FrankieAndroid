@@ -9,4 +9,7 @@
     <string name="bluetooth_picker">Select Bluetooth Device</string>
     <string name="bluetooth_stop">Disconnect Bluetooth</string>
     <string name="Katrina_Rocks">Katrina is the best!</string>
+    <string name="GPS">GPS</string>
+    <string name="Route">Route</string>
+    <string name="Battery">Battery</string>
 </resources>
