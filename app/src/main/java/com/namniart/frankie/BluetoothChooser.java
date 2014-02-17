@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -36,7 +38,18 @@ public class BluetoothChooser extends ListActivity {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.bluetooth);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.bluetooth_row);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.bluetooth_row){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                if (position % 2 == 1) {
+                    view.setBackgroundColor(Color.GRAY);
+                } else {
+                    view.setBackgroundColor(Color.LTGRAY);
+                }
+                return view;
+            }
+        };
         BluetoothDevice dev;
         
     	Intent i = getIntent();
