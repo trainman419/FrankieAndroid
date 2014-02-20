@@ -43,16 +43,23 @@ public class MainActivity extends Activity {
             public void handlePacket(Packet p) {
                 int compass = p.reads32(); // degrees x10
                 String heading = "";
-                if(compass < 22.5 || compass > 337.5) heading = "N";
-                else if(compass < 67.5) heading = "NE";
-                else if(compass < 112.5) heading = "E";
-                else if(compass < 157.5) heading = "SE";
-                else if(compass < 202.5) heading="S";
-                else if(compass < 247.5) heading="SW";
-                else if(compass < 292.5) heading="W";
-                else if(compass < 337.5) heading="NW";
-                TextView output = (TextView)findViewById(R.id.textView);
-                output.setText(heading);
+                Log.d("Frankie", Integer.toString(compass));
+                if(compass < 225 || compass > 3375) heading = "N";
+                else if(compass < 675) heading = "NE";
+                else if(compass < 1125) heading = "E";
+                else if(compass < 1575) heading = "SE";
+                else if(compass < 2025) heading="S";
+                else if(compass < 2475) heading="SW";
+                else if(compass < 2925) heading="W";
+                else if(compass < 3375) heading="NW";
+                final String heading_final = heading;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView output = (TextView)findViewById(R.id.textView);
+                        output.setText(heading_final);
+                    }
+                });
             }
         });
 	}
