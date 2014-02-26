@@ -17,7 +17,9 @@ import android.view.InputEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class MainActivity extends Activity {
 	// instance variables
@@ -56,8 +58,24 @@ public class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        TextView output = (TextView)findViewById(R.id.textView);
+                        TextView output = (TextView)findViewById(R.id.textViewCompass);
                         output.setText(heading_final);
+                    }
+                });
+            }
+        });
+        mApp.addHandler('G', new PacketHandler(){
+            //Handle GPS data packets
+            @Override
+            public void handlePacket(Packet p) {
+                final int latitude = p.reads32();
+                final int longitude = p.reads32();
+                final int Num_Satellites = p.reads32();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView output = (TextView)findViewById(R.id.textViewGPS);
+                        output.setText("Latitude: " + latitude + "\nLongitude: " + longitude + "\n# of Satellites: " + Num_Satellites);
                     }
                 });
             }
@@ -187,5 +205,16 @@ public class MainActivity extends Activity {
             return true;
 
         return super.dispatchGenericMotionEvent(event);
+    }
+    public void onAutonomousButton(View button){
+        ToggleButton toggleButton = (ToggleButton)button;
+        Packet auto = new Packet('A');
+        if(toggleButton.isChecked()) {
+            auto.append((byte)1);
+        } else {
+            auto.append((byte)0);
+        }
+        auto.finish();
+        mApp.getHwMan().sendPacket(auto);
     }
 }

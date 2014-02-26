@@ -13,7 +13,7 @@ public class Joystick {
     private int[] axes_;
     private float[] axesValues_;
     private SparseIntArray keys_;
-    private int x_axis, y_axis;
+    private int x_axis, y_axis, deadman;
     private RobotApplication mApp;
     
    /**
@@ -30,8 +30,9 @@ public class Joystick {
         // Left trigger: 2,3 (both the same)
         // Right trigger: 6,7 (both the same)
         // Dpad: y=8, x=9
-        x_axis = 0;
-        y_axis = 5;
+        x_axis = 4;
+        y_axis = 1;
+        deadman = 6;
     }
 
     /**
@@ -107,7 +108,17 @@ public class Joystick {
             int axisId = axes_[i];
             float axisVal = roundToZeroIfNecessary(event.getAxisValue(axisId));
             axesValues_[i] = axisVal;
+            Log.d("JoystickNode", "Axis:" + i + ", value: " + axisVal);
         }
+
+        Packet DeadManPacket = new Packet('D');
+        byte deadman_value = 0;
+        if( axesValues_[deadman] > 0 ) {
+            deadman_value = 1;
+        }
+        DeadManPacket.append(deadman_value);
+        DeadManPacket.finish();
+        mApp.getHwMan().sendPacket(DeadManPacket);
 
         // TODO: send/publish joystick event
         float x = axesValues_[x_axis];
@@ -122,6 +133,7 @@ public class Joystick {
         control.append(steering);
         control.finish();
         mApp.getHwMan().sendPacket(control);
+
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.namniart.frankie;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
@@ -105,11 +106,14 @@ public class HardwareManager extends Thread {
 			
 			// well-know UUID for SPP; from Android documentation: 
 			// http://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#createRfcommSocketToServiceRecord%28java.util.UUID%29
-			BluetoothSocket socket = mDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+            BluetoothSocket socket = mDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 			message("Created socket to " + mDevice.getName());
+
 
 			// connect socket
 			message("Connecting socket to " + dev.getName() + "...");
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
 			socket.connect();
 			message("Connected to " + dev.getName());
             toast("Connected to " + dev.getName());
